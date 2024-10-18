@@ -70,12 +70,11 @@ plot(bioclim_crop)
 
 # ~*~ Choose which bioclim variables to use in the GEA based on the correlations, biplot, and what you know about the system ~*~
 
-# save the clim data
+# save the clim data - I saved as one file, but you may want to save each bioclim variable that you're interested in separately
 # make sure the pca variables are in the same order as the bamfile samples!
 order_index <- match(bamlist$sample, mice_clim$GSB_ID) # the order w/in match matters!!
 mice_clim_ordered <- mice_clim[order_index, ]
 #write.table(mice_clim_ordered, "~/Documents/NicoleAdams/pman/gea/gsb_bioclim_ordered.txt", sep = "\t", col.names = T, row.names = F, quote = FALSE)
-
 
 # If you want to keep bioclim PCs you can do the following
 # save PCs (cumulative variance explained for PC1-4=98.2%)
