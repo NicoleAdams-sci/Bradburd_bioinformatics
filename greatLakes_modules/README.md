@@ -20,7 +20,7 @@ fastStructure: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/f
 structure: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/structure"<br>
 structure threader: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/structure_threader"<br>
 <br>
-example run: `structure_threader run -K <K> -R <R> -i <input.fam> --ind <indiv_list.txt> -o <out.st> -t <t> -fs /nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/fastStructure`
+example fastStructure run: `structure_threader run -K <K> -R <R> -i <input.fam> --ind <indiv_list.txt> -o <out.st> -t <t> -fs /nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/fastStructure`
 
 
 ## VCF2PCACluster
