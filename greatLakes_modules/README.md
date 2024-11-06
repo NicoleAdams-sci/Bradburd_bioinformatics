@@ -1,6 +1,6 @@
 # Custom modules available on Great Lakes
 
-**Use the following to initiate all custom modules**
+**Need to use the following to initiate all custom modules**<br>
 `module use /nfs/turbo/lsa-bradburd/shared/Lmod/` 
 
 ## ANGSD
