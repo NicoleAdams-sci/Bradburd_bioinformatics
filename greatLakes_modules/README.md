@@ -4,7 +4,7 @@
 `module use /nfs/turbo/lsa-bradburd/shared/Lmod/` 
 
 ## ANGSD
-version: v0.940<br>
+version: 0.940<br>
 to use: `module load angsd/0.940`
 
 ## SLiM
@@ -12,7 +12,7 @@ version: 4.3<br>
 to use: `module load SLiM/4.3`
 
 ## Structure Threader (fastStructure)
-version:1.0<br>
+version: 1.0<br>
 to use: `module load structure_threader/1.0`<br>
 <br>
 **Need to specify fastStructure location**<br>
