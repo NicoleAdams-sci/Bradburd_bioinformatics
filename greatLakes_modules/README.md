@@ -15,7 +15,7 @@ to use: `module load SLiM/4.3`
 version: 1.0<br>
 to use: `module load structure_threader/1.0`<br>
 <br>
-**Need to specify fastStructure location**<br>
+**Need to specify program location**<br>
 fastStructure: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/fastStructure"<br>
 structure: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/structure"<br>
 structure threader: "/nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/structure_threader"<br>
