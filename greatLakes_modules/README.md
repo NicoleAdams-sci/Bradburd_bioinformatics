@@ -12,6 +12,7 @@ to use: `module load angsd/0.940`<br>
 ## pixy
 version: 1.2.10.beta2<br>
 to use: `module purge; module load pixy`<br>
+<br>
 [pixy website](https://pixy.readthedocs.io/en/latest/index.html)<br>
 
 ## SLiM
