@@ -9,6 +9,11 @@ to use: `module load angsd/0.940`<br>
 <br>
 [ANGSD website](https://www.popgen.dk/angsd/index.php/ANGSD)<br>
 
+## pixy
+version: 1.2.10.beta2<br>
+to use: `module purge; module load pixy`<br>
+[pixy website](https://pixy.readthedocs.io/en/latest/index.html)<br>
+
 ## SLiM
 version: 4.3<br>
 to use: `module load SLiM/4.3`<br>
