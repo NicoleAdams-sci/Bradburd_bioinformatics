@@ -21,7 +21,6 @@ source ~/.bashrc
 module load feems
 ```
 <br>
-After one-time setup can access with just `module load feems`<br>
 [feems website](https://github.com/NovembreLab/feems)<br>
 
 ## pixy
