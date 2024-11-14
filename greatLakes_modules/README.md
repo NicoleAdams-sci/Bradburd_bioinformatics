@@ -9,6 +9,20 @@ to use: `module load angsd/0.940`<br>
 <br>
 [ANGSD website](https://www.popgen.dk/angsd/index.php/ANGSD)<br>
 
+## feems
+version: 1.0.0<br>
+to use: `module load feems`<br>
+<br>
+**Initial one-time setup**
+```
+module load mamba
+mamba init
+source ~/.bashrc
+module load feems
+```<br>
+After one-time setup can access with just `module load feems`<br>
+[feems website](https://github.com/NovembreLab/feems)<br>
+
 ## pixy
 version: 1.2.10.beta2<br>
 to use: `module purge; module load pixy`<br>
