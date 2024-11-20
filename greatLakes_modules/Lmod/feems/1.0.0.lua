@@ -35,20 +35,7 @@ setenv("CONDA_DEFAULT_ENV", feems_dir)
 setenv("CONDA_PYTHON_EXE", pathJoin(conda_bin, "python"))
 setenv("CONDA_EXE", pathJoin(conda_bin, "mamba"))
 
--- Add logic for manually setting up the mamba environment
-execute{cmd = 'source ~/.bashrc', modeA = {"load"}}
-execute{cmd = 'mamba activate ' .. feems_dir, modeA = {"load"}}
-
 -- Set whatis and description
 whatis("Name: feems")
 whatis("Version: 1.0.0")
 whatis("Description: Fast Estimation of Effective Migration Surfaces (feems)")
-
-if mode() == "unload" then
-    -- Reset environment variables on module unload
-    unsetenv("FEEMS")
-    unsetenv("CONDA_PREFIX")
-    unsetenv("CONDA_DEFAULT_ENV")
-    unsetenv("CONDA_PYTHON_EXE")
-    unsetenv("CONDA_EXE")
-end
