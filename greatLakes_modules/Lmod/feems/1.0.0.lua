@@ -3,11 +3,6 @@ help([[
 Name: feems
 Version: 1.0.0
 Description: Fast Estimation of Effective Migration Surfaces (feems) is a Python package implementing a statistical method for inferring and visualizing gene-flow in spatial population genetic data.
-
-Initial One-Time Setup: 
-module load mamba
-mamba init
-source ~/.bashrc
 ]])
 
 -- Load necessary modules
