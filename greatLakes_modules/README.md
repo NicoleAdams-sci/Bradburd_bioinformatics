@@ -13,14 +13,6 @@ to use: `module load angsd/0.940`<br>
 version: 1.0.0<br>
 to use: `module load feems`<br>
 <br>
-**Initial one-time setup**
-```
-module load mamba
-mamba init
-source ~/.bashrc
-module load feems
-```
-
 [feems website](https://github.com/NovembreLab/feems)<br>
 
 ## pixy
