@@ -9,6 +9,12 @@ to use: `module load angsd/0.940`<br>
 <br>
 [ANGSD website](https://www.popgen.dk/angsd/index.php/ANGSD)<br>
 
+## fastp
+version: 0.24.0<br>
+to use: `module load fastp`<br>
+<br>
+[fastp website](https://github.com/OpenGene/fastp)<br>
+
 ## feems
 version: 1.0.0<br>
 to use: `module load feems`<br>
