@@ -27,6 +27,12 @@ to use: `module purge; module load pixy`<br>
 <br>
 [pixy website](https://pixy.readthedocs.io/en/latest/index.html)<br>
 
+## rad_haplotyper
+version: 1.1.9<br>
+to use: `module purge; module load rad_haplotyper`<br>
+<br>
+[rad_haplotyper website](https://github.com/chollenbeck/rad_haplotyper)<br>
+
 ## SLiM
 version: 4.3<br>
 to use: `module load SLiM/4.3`<br>
