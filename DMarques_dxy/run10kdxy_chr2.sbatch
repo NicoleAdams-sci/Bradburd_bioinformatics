@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name run10kdxy
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=7G
+#SBATCH --ntasks-per-node=6
+#SBATCH --mem=1G
 #SBATCH --time=24:00:00
 ##SBATCH --account=test
 #SBATCH --partition=standard
