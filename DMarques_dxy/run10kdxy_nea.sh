@@ -22,10 +22,15 @@ b=$2
 BED=$3
 
 # Define programs and constants
-ANGSDIR=/home/akimmitt/angsd.94
-WINDIR=/home/akimmitt/.cargo/bin
-ANC=flinflon/$REF
-FAI=reference.fai #
+#ANGSDIR=/home/akimmitt/angsd.94
+#WINDIR=/home/akimmitt/.cargo/bin
+#ANC=flinflon/$REF
+#FAI=reference.fai
+module load Bioinformatics angsd
+REFDIR="/home/nicolead/pman/reference/"
+REF="GCF_003704035.1_HU_Pman_2.1.3_genomic.fna"
+FAI="GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.fai"
+BAMDIR="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/bwaMap/mergedBams"
 
 # Get index number for chromosomes
 i=$SLURM_ARRAY_TASK_ID
@@ -33,29 +38,30 @@ d=$(cat GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.fai_autoNames.txt) #chr names,
 c=$(echo $d | cut -f $i -d " ")
 
 # Choose SAF file based on autosome or sex chromosome
-cat "${SLURM_SUBMIT_DIR}/../../regions/windows.chr${c}.10k.bed" | while read -r chr start end; do
+cat  | while read -r chr start end; do
     region="${chr}:${start}-${end}"
     
     echo "$region" > "${SLURM_SUBMIT_DIR}/${i}.rf"
 
-    angsd -b "${SLURM_SUBMIT_DIR}/../bamlists/${a}.bamlist" \
+    angsd -b $BAMDIR/"${a}.bamlist" \
           -out "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}" \
           -doSaf 1 -GL 2 -rf "${SLURM_SUBMIT_DIR}/${i}.rf" \
           -minQ 30 -minMapQ 30 \
-          -fai $FAI \
-          -anc $REF
+          -fai $REFDIR/$FAI \
+          -anc $REFDIR/$REF
 
-    angsd -b "${SLURM_SUBMIT_DIR}/../bamlists/${b}.bamlist" \
+    angsd -b $BAMDIR/"${b}.bamlist" \
           -out "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}" \
           -doSaf 1 -GL 2 -rf "${SLURM_SUBMIT_DIR}/${i}.rf" \
           -minQ 30 -minMapQ 30 \
-          -fai $FAI \
-          -anc $ANC
+          -fai $REFDIR/$FAI \
+          -anc $REFDIR/$REF
 
     echo -n "$chr $start $end "
     
-    $WINDIR/winsfs "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}.saf.idx" \
-            "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}.saf.idx"
+   # $WINDIR/winsfs "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}.saf.idx" \
+    #        "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}.saf.idx"
+    realSFS "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}.saf.idx" "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}.saf.idx" -fold 1
     
 done | awk '{if(NF>4){print $NF}}' > "${SLURM_SUBMIT_DIR}/${a}.${b}.chr${c}.10kwin.sfs"
 
