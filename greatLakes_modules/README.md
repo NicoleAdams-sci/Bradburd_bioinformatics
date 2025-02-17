@@ -54,6 +54,6 @@ example fastStructure run: `structure_threader run -K <K> -R <R> -i <input.fam> 
 
 ## VCF2PCACluster
 version: 1.40<br>
-to use: `module load VCF2PCACluster/1.40`<br>
+to use: `module load Bioinformatics VCF2PCACluster`<br>
 <br>
 [VCF2PCACluster website](https://github.com/hewm2008/VCF2PCACluster)<br>
