@@ -31,28 +31,31 @@ REFDIR="/home/nicolead/pman/reference/"
 REF="GCF_003704035.1_HU_Pman_2.1.3_genomic.fna"
 FAI="GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.fai"
 BAMDIR="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/bwaMap/mergedBams"
+OUTDIR="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/genoL.downSamp/dxy_pop"
 
 # Get index number for chromosomes
 i=$SLURM_ARRAY_TASK_ID
 d=$(cat GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.fai_autoNames.txt) #chr names, I think
 c=$(echo $d | cut -f $i -d " ")
 
+cd $BAMDIR
+
 # Choose SAF file based on autosome or sex chromosome
-cat  | while read -r chr start end; do
+cat $OUTDIR/$BED | while read -r chr start end; do
     region="${chr}:${start}-${end}"
     
-    echo "$region" > "${SLURM_SUBMIT_DIR}/${i}.rf"
+    echo "$region" > $OUTDIR/${i}.rf
 
     angsd -b $BAMDIR/"${a}.bamlist" \
-          -out "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}" \
-          -doSaf 1 -GL 2 -rf "${SLURM_SUBMIT_DIR}/${i}.rf" \
+          -out $OUTDIR/tmp.${a}.${i} \
+          -doSaf 1 -GL 2 -rf $OUTDIR/${i}.rf \
           -minQ 30 -minMapQ 30 \
           -fai $REFDIR/$FAI \
           -anc $REFDIR/$REF
 
     angsd -b $BAMDIR/"${b}.bamlist" \
-          -out "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}" \
-          -doSaf 1 -GL 2 -rf "${SLURM_SUBMIT_DIR}/${i}.rf" \
+          -out $OUTDIR/tmp.${b}.${i} \
+          -doSaf 1 -GL 2 -rf $OUTDIR/${i}.rf \
           -minQ 30 -minMapQ 30 \
           -fai $REFDIR/$FAI \
           -anc $REFDIR/$REF
@@ -61,8 +64,8 @@ cat  | while read -r chr start end; do
     
    # $WINDIR/winsfs "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}.saf.idx" \
     #        "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}.saf.idx"
-    realSFS "${SLURM_SUBMIT_DIR}/tmp.${a}.${i}.saf.idx" "${SLURM_SUBMIT_DIR}/tmp.${b}.${i}.saf.idx" -fold 1
+    result=$(realSFS $OUTDIR/tmp.${a}.${i}.saf.idx $OUTDIR/tmp.${b}.${i}.saf.idx -fold 1)
     
-done | awk '{if(NF>4){print $NF}}' > "${SLURM_SUBMIT_DIR}/${a}.${b}.chr${c}.10kwin.sfs"
+done | awk '{if(NF>4){print $NF}}' > $OUTDIR/${a}.${b}.chr${c}.10kwin.sfs
 
 #rm $SLURM_SUBMIT_DIR"/"$i".rf" $SLURM_SUBMIT_DIR"/"tmp.*.$i.*
