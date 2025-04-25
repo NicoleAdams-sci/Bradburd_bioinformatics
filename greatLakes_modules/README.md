@@ -21,6 +21,12 @@ to use: `module load feems`<br>
 <br>
 [feems website](https://github.com/NovembreLab/feems)<br>
 
+## locator
+version: 1.2<br>
+to use: `module load locator`<br>
+<br>
+[locator website](https://github.com/kr-colab/locator)<br>
+
 ## pixy
 version: 1.2.10.beta2<br>
 to use: `module purge; module load pixy`<br>
