@@ -12,26 +12,37 @@
 #SBATCH --mail-user=nicoleadams.sci@gmail.com
 #SBATCH --array=1-25
 
+# run this script like this: sbatch run10kdxy_chr2.sbatch pop1.bamlist pop2.bamlist pop1 pop2
+
+module load Bioinformatics angsd
+
 # set reference and bed files directory
 REF="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/reference/GCF_003704035.1_HU_Pman_2.1.3_genomic.fna"
 FAI="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/reference/GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.fai"
 BEDDIR="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/reference/10kb_beds"
 BAMDIR="/nfs/turbo/lsa-bradburd/NicoleAdams/pman/bwaMap/mergedBams"
 OUTDIR="nfs/turbo/lsa-bradburd/NicoleAdams/pman/genoL.downSamp/dxy/sfs_chr"
+
 # Get index number for chromosomes
 i=${SLURM_ARRAY_TASK_ID}
 d=$(cut -f1 GCF_003704035.1_HU_Pman_2.1.3_genomic.10kb.bed | sort | uniq | grep "NC") # only the chr, not the scaffolds
 c=$(echo $d | cut -f $i -d " ")
+
 # Population names
 a=$1
 b=$2
 aNam=$3
 bNam=$4
+
 # deinfe bed and output names
 input_bed="$BEDDIR/${c}.10kb.bed"
 output_sfs="$OUTDIR/${aNam}.${bNam}.chr${c}.10kwin.sfs"
+
 # Angsd filters
 FILT="-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -minMapQ 20 -minQ 25 -C 50 -baq 1"
+
+cd $BAMDIR
+
 # Choose SAF file based on autosome or sex chromosome
 # Process each line in the input BED file
 while read -r chrom start end; do
