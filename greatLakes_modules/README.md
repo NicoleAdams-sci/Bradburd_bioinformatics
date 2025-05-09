@@ -40,8 +40,11 @@ to use: `module purge; module load rad_haplotyper`<br>
 [rad_haplotyper website](https://github.com/chollenbeck/rad_haplotyper)<br>
 
 ## SLiM
-version: 4.3<br>
-to use: `module load SLiM/4.3`<br>
+Available versions: 4.3 (default), 5.0<br>
+### SLiM 4.3
+to use: `module load SLiM` or `module load SLiM/4.3/4.3`<br>
+### SLiM 5.0
+to use: `module load SLiM/5.0/5.0`<br>
 <br>
 [SLiM website](https://messerlab.org/slim/)<br>
 
