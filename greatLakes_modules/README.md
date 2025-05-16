@@ -21,7 +21,7 @@ to use: `module load feems`<br>
 <br>
 [feems website](https://github.com/NovembreLab/feems)<br>
 
-## locator
+## locator *under construction*
 version: 1.2<br>
 to use: `module load locator`<br>
 <br>
