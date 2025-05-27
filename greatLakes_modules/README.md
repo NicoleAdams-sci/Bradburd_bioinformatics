@@ -21,7 +21,7 @@ to use: `module load feems`<br>
 <br>
 [feems website](https://github.com/NovembreLab/feems)<br>
 
-## locator *under construction*
+## locator
 version: 1.2<br>
 to use: `module load locator`<br>
 <br>
@@ -47,6 +47,14 @@ to use: `module load SLiM` or `module load SLiM/4.3/4.3`<br>
 to use: `module load SLiM/5.0/5.0`<br>
 <br>
 [SLiM website](https://messerlab.org/slim/)<br>
+
+## SLiM post processing
+purpose: SLiM simulation output analysis and tree sequence processing<br>
+version: 1.0.0<br>
+to use: `module load slim-postprocess/1.0.0`<br>
+contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4 (Python) + gaia (R)<br>
+<br>
+Links: [tskit](https://tskit.dev/) | [pyslim](https://pyslim.readthedocs.io/) | [msprime](https://msprime.readthedocs.io/) | [gaia](https://github.com/blueraleigh/gaia)<br>
 
 ## Structure Threader (fastStructure)
 version: 1.0<br>
