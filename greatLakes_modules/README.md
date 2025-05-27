@@ -48,11 +48,12 @@ to use: `module load SLiM/5.0/5.0`<br>
 <br>
 [SLiM website](https://messerlab.org/slim/)<br>
 
-## SLiM post processing
+## SLiM post-processing
 purpose: SLiM simulation output analysis and tree sequence processing<br>
 version: 1.0.0<br>
 to use: `module load slim-postprocess/1.0.0`<br>
 contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4 (Python) + gaia (R)<br>
+limitations: When used with SLiM 5.0: works for single chromosome models, but limited support for multi-chromosome models (due to pyslim v1.0.4) 
 <br>
 Links: [tskit](https://tskit.dev/) | [pyslim](https://pyslim.readthedocs.io/) | [msprime](https://msprime.readthedocs.io/) | [gaia](https://github.com/blueraleigh/gaia)<br>
 
