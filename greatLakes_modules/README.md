@@ -3,6 +3,12 @@
 **Need to use the following to initiate all custom modules**<br>
 `module use /nfs/turbo/lsa-bradburd/shared/Lmod/` 
 
+## ADMIXTURE
+version: 1.3.0<br>
+to use: `module load admixture`<br>
+<br>
+[ADMIXTURE website](https://dalexander.github.io/admixture/index.html)<br>
+
 ## ANGSD
 version: 0.940<br>
 to use: `module load angsd/0.940`<br>
