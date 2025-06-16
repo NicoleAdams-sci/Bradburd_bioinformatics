@@ -3,12 +3,20 @@
 
 options(repos = c(CRAN = "https://cloud.r-project.org/"))
 
+# Create a personal library directory if it doesn't exist
+personal_lib <- Sys.getenv("R_LIBS_USER")
+if (!dir.exists(personal_lib)) {
+  dir.create(personal_lib, recursive = TRUE)
+}
+
+# Install libraries to personal library
+if (!require("ggpubr", quietly = TRUE)) {
+  install.packages("ggpubr", lib = personal_lib)
+  library(ggpubr, lib.loc = personal_lib)
+}
+
 # Load in libraries
 library(tidyverse)
-if (!require("ggpubr", quietly = TRUE)) {
-  install.packages("ggpubr")
-  library(ggpubr)
-}
 
 
 # Load input files: individual missingness, individual mean depth, site missingness from VCF
