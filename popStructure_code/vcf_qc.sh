@@ -59,7 +59,7 @@ bash code/check.invarSites.sh $VCF
 cd $OUTDIR
 
 # Plot missingness and depth distributions in R
-Rscript ../../code/vcf_qc.R indiv_miss site_miss indiv_depth
+Rscript ../../code/vcf_qc.R indiv_miss.imiss site_miss.lmiss indiv_depth.idepth
 
 
 # Get version information for modules used
