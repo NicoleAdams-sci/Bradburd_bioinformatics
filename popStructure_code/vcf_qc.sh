@@ -19,6 +19,20 @@ OUTDIR="output/vcf_qc"
 # Write running output to screen and log file
 exec > >(tee $OUTDIR/vcf_qc.log) 2>&1  
 
+# Check if file is compressed
+if [[ "$VCF" != *.gz ]]; then
+    echo "Compressing VCF file..."
+    bgzip "$VCF"
+    VCF="${VCF}.gz"	# Update VCF variable to point to compressed file
+fi
+
+# Check if index exists
+if [[ ! -f "${VCF}.tbi" ]]; then
+    echo "Creating tabix index for $VCF"
+    tabix "$VCF"
+else
+    echo "Index already exists for $VCF"
+fi
 
 # Count the number of samples and variants in the ipyrad VCF
 echo "--- No. of samples in $VCF ---"
