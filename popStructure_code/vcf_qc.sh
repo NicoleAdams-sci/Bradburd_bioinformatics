@@ -5,7 +5,7 @@
 # Usage: code/vcf_qc.sh input.vcf.gz
 
 # Load modules
-module load Bioinformatics bcftools vcftools Rtidyverse
+module load Bioinformatics htslib bcftools vcftools Rtidyverse
 
 # Define inputs
 VCF=$1
