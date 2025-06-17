@@ -14,6 +14,11 @@ if (!require("ggpubr", quietly = TRUE)) {
   install.packages("ggpubr", lib = personal_lib)
   library(ggpubr, lib.loc = personal_lib)
 }
+# Install libraries to personal library
+if (!require("cowplot", quietly = TRUE)) {
+  install.packages("cowplot", lib = personal_lib)
+  library(cowplot, lib.loc = personal_lib)
+}
 
 # Load in libraries
 library(tidyverse)
