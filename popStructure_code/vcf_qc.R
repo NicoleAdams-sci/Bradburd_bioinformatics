@@ -11,7 +11,7 @@ if (!dir.exists(personal_lib)) {
 
 # Install libraries to personal library
 if (!require("ggpubr", quietly = TRUE)) {
-  install.packages("ggpubr", lib = personal_lib)
+  install.packages("ggpubr", lib = personal_lib, dependencies = TRUE)
   library(ggpubr, lib.loc = personal_lib)
 }
 # Install libraries to personal library
