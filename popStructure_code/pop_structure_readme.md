@@ -5,7 +5,7 @@ This bash script performs comprehensive population structure analysis on genomic
 
 ## Usage
 ```bash
-bash pop_structure_all_samples.sh input.vcf.gz metadata [imiss] [lmiss] [HWP] [K] [threads]
+bash pop_structure_all_samples.sh input.vcf.gz metadata [imiss] [lmiss] [hwp] [k] [threads]
 ```
 
 ### Parameters
