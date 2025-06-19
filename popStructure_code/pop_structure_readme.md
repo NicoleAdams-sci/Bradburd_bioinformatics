@@ -13,7 +13,7 @@ bash pop_structure_all_samples.sh input.vcf.gz metadata [imiss] [lmiss] [hwp] [k
 - `metadata`: Sample metadata file (required)
 - `imiss`: Individual missingness threshold (default: 0.5)
 - `lmiss`: Locus missingness threshold (default: 0.5)
-- `hwp`: Hardy-Weinberg equilibrium p-value cutoff (default: 0.01)
+- `hwp`: Hardy-Weinberg equilibrium p-value cutoff (default: 1*10^-6)
 - `k`: Maximum number of clusters for ADMIXTURE (default: 5)
 - `threads`: Number of processing threads (default: 4)
 
