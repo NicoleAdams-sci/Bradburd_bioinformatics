@@ -41,6 +41,12 @@ bcftools query -l $VCF | wc -l
 echo "--- No. of sites in $VCF ---"
 bcftools view -H $VCF --threads $THREADS | wc -l
 
+echo "--- No. of unique locus names in $VCF ---"
+zgrep -v "^#" $VCF | cut -f1 | sort | uniq | wc -l
+
+echo "--- Count SNPs per locus in $VCF ---"
+zgrep -v "^#" $VCF | cut -f1 | sort | uniq -c | awk '{print $2 "\t" $1}' > snp_per_loci.txt
+
 
 # Get individual missingness using vcftools
 vcftools --gzvcf $VCF --missing-indv --out $OUTDIR/indiv_miss
