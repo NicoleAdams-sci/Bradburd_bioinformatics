@@ -183,24 +183,17 @@ Rscript ../../../code/plot_admixture.R . $OUTNAM cross_validation.txt $OUTNAM.fi
 
 
 ########## Structure analysis using fastStructure (Bradburd module) ##########
-#mkdir -p $OUTDIR/fastStructure_results
+# stay in admixture results bc fastStructure also needs the reformatted bim file
 
-# Copy Plink files (bed, bim, fam) to fastStructure directory
-#cp $OUTDIR/plink_results/$OUTNAM.filtered* $OUTDIR/fastStructure_results/
+# load fastStructure module via structure_threader
+module use /nfs/turbo/lsa-bradburd/shared/Lmod/
+module load structure_threader/1.0
 
-# fastStructure does not accept chromosome names that are not human chromosomes. So exchange the first column by 0
-#cd $OUTDIR/fastStructure_results
-#awk '{$1="0";print $0}' $OUTNAM.filtered.bim > $OUTNAM.filtered.bim.tmp
+# Make indfile input for fastStructure from Plink fam file
+cat $OUTNAM.filtered.fam | awk '{print $2}' > $OUTNAM.ind
 
-#mv $OUTNAM.filtered.bim $OUTNAM.filtered.bim_og # save og plink file justin cases
-
-#mv $OUTNAM.filtered.bim.tmp $OUTNAM.filtered.bim
-
-# Run fastStructure using K1:10 with 3 replicates each (although fs might ignore -R). Made individual file from PCA metadata.
-#module use /nfs/turbo/lsa-bradburd/shared/Lmod/
-#module load structure_threader/1.0
-
-#structure_threader run -K 10 -R 3 -i $OUTNAM.filtered.fam --ind pubPman_wgsExome.popfile_N352.txt -o $OUTNAM.filtered.fs -t 2 -fs /nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/fastStructure
+# Run fastStructure for every K with 3 replicates each (although fs might ignore -R)
+structure_threader run -K $K -R 3 -i $OUTNAM.filtered.fam --ind $OUTNAM.ind -o ../fastStructure_results/ -t $THREADS -fs /nfs/turbo/lsa-bradburd/shared/programs/structure_threader/bin/fastStructure
 
 
 ########## Admixture events analysis with TreeMix ##########
