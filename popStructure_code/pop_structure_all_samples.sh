@@ -9,7 +9,7 @@ module load Bioinformatics bcftools vcftools htslib plink Rtidyverse
 
 # Read in named and positional inputs
 VCF=$1
-META=$2
+META=$2		# Should have column headers
 shift 2  # Remove first two positional args
 
 # Set defaults
@@ -38,6 +38,9 @@ OUTDIR="output/pop_struct_all"
 
 OUTNAM="pop_all"
 
+META_NOHEAD=${META%.*}\_nohead.txt
+tail -n +2 $META > $META_NOHEAD
+
 
 # Write running output to screen and log file
 exec > >(tee $OUTDIR/pop_structure_all_samples.log) 2>&1
@@ -64,7 +67,7 @@ vcftools --gzvcf $VCF \
 
 cd $OUTDIR
 
-# Calculate individual sample missingness
+# # Calculate individual sample missingness
 vcftools --gzvcf $OUTNAM.vcf.gz --missing-indv --out $OUTNAM
 
 # Create a list of individuals that pass the missingness threshold
@@ -110,7 +113,7 @@ plink --bfile $OUTNAM.i$IMISS2.l$LMISS2.maf05 --allow-extra-chr --indep-pairwise
 sed 's/scaffold_\([^_]*\)_\([^_]*\)_.*/scaffold_\1\t\2/' $OUTNAM.i$IMISS2.l$LMISS2.maf05_ld.prune.out > $OUTNAM.i$IMISS2.l$LMISS2.maf05_ld.prune.reformat.out
 
 
-# echo "--- rm LD sites from $VCF ---" and filter on HWE
+echo "--- rm LD sites from $VCF ---" and filter on HWE
 cd ..
 
 vcftools --gzvcf $VCF_TO_USE \
@@ -147,8 +150,7 @@ Rscript ../../code/plot_pca.R plink_results/$OUTNAM.filtered.eigenval plink_resu
 module use /nfs/turbo/lsa-bradburd/shared/Lmod/
 module load VCF2PCACluster
 mkdir -p vcf2pca_results
-VCF2PCACluster -InVCF $OUTNAM.filtered.vcf.gz -OutPut vcf2pca_results/pca -InSampleGroup ../../$META
-
+VCF2PCACluster -InVCF $OUTNAM.filtered.vcf.gz -OutPut vcf2pca_results/pca -InSampleGroup ../../$META_NOHEAD
 
 
 ########## Structure analysis with Admixture (Bradburd module) ##########
