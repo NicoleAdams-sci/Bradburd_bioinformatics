@@ -59,7 +59,7 @@ version: 1.0.0<br>
 to use: `module load slim-postprocess/1.0.0`<br>
 <br>
 Purpose: SLiM simulation output analysis and tree sequence processing<br>
-Contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4 (Python) + gaia (R)<br>
+Contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4, fastgaia-0.1.1 (Python) + gaia (R)<br>
 <br>
 **Limitations**: When used with SLiM 5.0: works for single chromosome models, but limited support for multi-chromosome models (due to pyslim v1.0.4)<br>
 <br>
