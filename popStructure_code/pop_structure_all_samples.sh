@@ -138,12 +138,11 @@ bcftools view -H $OUTNAM.filtered.vcf.gz --threads $THREADS | wc -l
 
 ########## PCA using Plink ##########
 echo "--- Running PCA ---"
-plink --vcf $OUTNAM.filtered.vcf.gz --allow-extra-chr --make-bed --set-all-var-ids @_# --threads $THREADS --pca --out plink_results/$OUTNAM.filtered
+plink --vcf $OUTNAM.filtered.vcf.gz --allow-extra-chr --make-bed --set-all-var-ids @_# --export ped --threads $THREADS --pca --out plink_results/$OUTNAM.filtered
 
 # Plot PCA using R
 mkdir -p plink_pca_results
 Rscript ../../code/plot_pca.R plink_results/$OUTNAM.filtered.eigenval plink_results/$OUTNAM.filtered.eigenvec ../../$META pca
-
 
 
 ########## PCA using VCF2PCACluster (Bradburd module) ##########
@@ -161,18 +160,23 @@ echo "--- Run K=2 to $K with cross-validation ---"
 mkdir -p admixture_results
 
 # copy plink files to admix directory to run
-cp plink_results/$OUTNAM.filtered.{bed,bim,fam} admixture_results/
+cp plink_results/$OUTNAM.filtered.{bed,bim,fam,map} admixture_results/
 
 cd admixture_results
 
-# fix chr format bc admix only accepts integer chr names
-awk '{$1="0";print $0}' $OUTNAM.filtered.bim > $OUTNAM.filtered.bim.tmp
-mv $OUTNAM.filtered.bim $OUTNAM.filtered.bim_og # save og plink bim file justin cases
-mv $OUTNAM.filtered.bim.tmp $OUTNAM.filtered.bim
+# fix chr format bc admix only accepts integer chr names - replace first column with zeros
+for file in $OUTNAM.filtered.bim $OUTNAM.filtered.map; do
+    if [ -f "$file" ]; then
+        echo "Fixing chromosome format in $file"
+        awk '{$1="0"; print $0}' "$file" > "${file}.tmp"
+        mv "$file" "${file}_og"  # backup original
+        mv "${file}.tmp" "$file"
+    fi
+done
 
-# run admixture for every K with bootstrapping (-B, can change bootstrap value)
+# run admixture for every K with bootstrapping (-B#, can add and change bootstrap value *bootstrap not working atm*)
 for i in $(seq 2 $K); do
-    admixture --cv $OUTNAM.filtered.bed $i -B99 -j$THREADS| tee log${i}.out
+    admixture --cv $OUTNAM.filtered.bed $i -j$THREADS| tee log${i}.out
 done
 
 # Consolidate cross validation 
@@ -186,6 +190,7 @@ Rscript ../../../code/plot_admixture.R . $OUTNAM cross_validation.txt $OUTNAM.fi
 # stay in admixture results bc fastStructure also needs the reformatted bim file
 
 # load fastStructure module via structure_threader
+module purge
 module use /nfs/turbo/lsa-bradburd/shared/Lmod/
 module load structure_threader/1.0
 
