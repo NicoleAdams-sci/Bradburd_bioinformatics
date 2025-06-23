@@ -63,7 +63,7 @@ Contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4, fastgaia-0.1.1 (Python) +
 <br>
 **Limitations**: When used with SLiM 5.0: works for single chromosome models, but limited support for multi-chromosome models (due to pyslim v1.0.4)<br>
 <br>
-Links: [tskit](https://tskit.dev/) | [pyslim](https://pyslim.readthedocs.io/) | [msprime](https://msprime.readthedocs.io/) | [gaia](https://github.com/blueraleigh/gaia)<br>
+Links: [tskit](https://tskit.dev/) | [pyslim](https://pyslim.readthedocs.io/) | [msprime](https://msprime.readthedocs.io/) | [gaia](https://github.com/blueraleigh/gaia) | [fastgaia](https://github.com/chris-a-talbot/fastgaia)<br>
 
 ## Structure Threader (fastStructure)
 version: 1.0<br>
