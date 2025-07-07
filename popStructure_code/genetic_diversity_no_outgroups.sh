@@ -13,7 +13,7 @@ META=$2		# Metadata file; should have column headers
 GENGRPS=$3		# File of genetic groups assignments; should have column headers
 shift 3  # Remove first two positional args
 
-# Set defaults
+# Set defaults (for input parameters)
 IMISS=0.5	# individual missingness, default 0.5 (50%)
 LMISS=0.5	# locus missingness, default 0.5 (50%)
 HWP=0.000001	# pvalue for HWE cutoff filtering, default 1e-6
@@ -30,6 +30,10 @@ for arg in "$@"; do
     esac
 done
 
+
+# More defaults (non-inputs)
+DP=10			# minimum depth cutoff per locus
+MAF=0.01		# minor allele freq cutoff
 
 # Define outputs
 mkdir -p output/gen_div
@@ -56,7 +60,7 @@ echo "Using $IMISS2% individual missingness and $LMISS2% locus missingness as cu
 # ## minimum genotype quality -- can adjust; minimum genotype depth -- can adjust, eep only biallelic alleles
 # vcftools --gzvcf $VCF \
 # 		--minGQ 15 \
-# 		--minDP 10 \
+# 		--minDP $DP \
 #         --remove-indels \
 #         --min-alleles 2 \
 #         --max-alleles 2 \
@@ -103,7 +107,7 @@ done
 #         # Filter this genetic group with MAF and HWE
 #         vcftools --gzvcf $OUTNAM.i$IMISS2.l$LMISS2.vcf.gz \
 #           --keep ${OUTNAM}_${GROUP}_samples.txt \
-#           --maf 0.01 \
+#           --maf $MAF \
 #           --hwe $HWP \
 #           --recode \
 #           --recode-INFO-all \
@@ -220,62 +224,87 @@ echo "Found $NUM_GROUPS genetic groups for Fst calculations: ${GROUPS_ARRAY[@]}"
 # echo "All Fst calculations completed!"
 
 
-########## Calculate nucleotide diversity via pixy *** UNDER CONSTRUCTION *** ##########
+########## Calculate nucleotide diversity via pixy (Bradburd module)*** UNDER CONSTRUCTION *** ##########
 # Check for invariant (monomorphic) sites in starting VCF
 echo "--- Checking for invariant sites in $VCF ---"
 bash ../../code/check.invarSites.sh $VCF
 
-#invariant + variant file for pixy
+# #Invariant + variant file for pixy
+# ## remove samples with high missingness
+# vcftools --gzvcf ../../$VCF \
+# 	--keep $OUTNAM.$IMISS2.txt \
+# 	--recode --recode-INFO-all --stdout 2> initial_filter_4pixy.log | bgzip -c > initial_filtered_4pixy.vcf.gz
+# 
+# # Separate invariant from variant loci
+# ## this keeps invariant loci
+# vcftools --gzvcf initial_filtered_4pixy.vcf.gz \
+# 	--remove-indels \
+# 	--max-alleles 1 \
+# 	--recode --stdout 2> invariant_sites.log | bgzip -c > invariant_sites_4pixy.vcf.gz
+# 
+# ## Filter invariant sites
+# vcftools --gzvcf invariant_sites_4pixy.vcf.gz \
+# 	--max-missing $LMISS \
+# 	--minDP $DP \
+# 	--recode --stdout 2> invariant_sites_filtered.log | bgzip -c > invariant_sites_4pixy_filtered.vcf.gz
+# 
+# # Create a filtered VCF containing only variant sites
+# vcftools --gzvcf initial_filtered_4pixy.vcf.gz \
+# 	--mac 1 \
+# 	--remove-indels \
+# 	--max-missing $LMISS \
+# 	--minDP $DP \
+# 	--maf $MAF \
+# 	--recode --stdout 2> variant_sites.log | bgzip -c > variant_sites_4pixy.vcf.gz
+# 
+# # Index both vcfs using tabix
+# tabix invariant_sites_4pixy_filtered.vcf.gz
+# tabix variant_sites_4pixy.vcf.gz
 
-vcftools --vcf populations.all.vcf --remove lowDP.indv --recode --recode-INFO-all --out populations_no_lowDp
-vcftools --vcf populations_no_lowDp.recode.vcf --remove ~/shovel-bugs/cryptic_species.txt --recode --stdout | bgzip -c > initial_filtered_indv.vcf.gz 
+# Combine the two VCFs using bcftools concat
+bcftools concat --allow-overlaps invariant_sites_4pixy_filtered.vcf.gz variant_sites_4pixy.vcf.gz -O z -o $OUTNAM\_final_4pixy.vcf.gz
 
-#separate the invariants from variants
+# Get chr/scaffold names so that pixy calculates over fewer windows -- group by 10k contigs
+bcftools view --header-only $OUTNAM\_final_4pixy.vcf.gz | grep "##contig" | cut -f3 -d "=" | sed 's/>/''/g' | awk '{print $0, " chr" int((NR-1)/10000+1)}' > chrlist.txt
 
-vcftools --gzvcf initial_filtered_indv.vcf.gz --remove-indels --max-alleles 1 --recode --stdout | bgzip -c > invariant_sites.vcf.gz #this keeps invariants
+bcftools annotate --rename-chrs chrlist.txt $OUTNAM\_final_4pixy.vcf.gz -Oz -o $OUTNAM\_final_4pixy_renamed.vcf.gz
 
-vcftools --gzvcf invariant_sites.vcf.gz --max-missing 0.75 --minDP 20 --recode --stdout | bgzip -c > test_missing_invariant_sites.vcf.gz #this keeps fewer invariants
+# Extract body and count variants
+bcftools view -H $OUTNAM\_final_4pixy_renamed.vcf.gz -Oz -o rename.body.vcf.gz
+VARIANT_COUNT=$(zgrep -v "^#" $OUTNAM\_final_4pixy_renamed.vcf.gz | wc -l)
+echo "Total variants: $VARIANT_COUNT"
 
-# create a filtered VCF containing only variant sites
-vcftools --gzvcf initial_filtered_indv.vcf.gz --mac 1 --remove-indels --max-missing 0.75 --maf 0.05 --min-meanDP 20  --recode --stdout | bgzip -c > variant_sites.vcf.gz
+# Create position list and replace positions
+echo $(seq 1 $VARIANT_COUNT) | tr ' ' '\n' > contpos.txt
+zcat rename.body.vcf.gz | awk 'BEGIN{OFS=FS="\t"} NR==FNR{a[NR]=$1; next} {if (FNR in a) $2=a[FNR]; print $0}' contpos.txt - | bgzip > $SCRATCH/rename2.body.vcf.gz
 
-# index both vcfs using tabix
-tabix test_missing_invariant_sites.vcf.gz
-tabix variant_sites.vcf.gz
-
-# combine the two VCFs using bcftools concat
-bcftools concat --allow-overlaps test_missing_invariant_sites.vcf.gz variant_sites.vcf.gz -O z -o final_filtered_sites.vcf.gz
-
-bcftools view --header-only final_filtered_sites.vcf.gz | grep "##contig" | cut -f3 -d "=" | sed 's/>/''/g' | awk '{print $0, " chr" int((NR-1)/10000+1)}'  >chrlist.txt
-
-bcftools annotate --rename-chrs chrlist.txt final_filtered_sites.vcf.gz -Oz -o final_renamed.vcf.gz
-
-bcftools view -H final_renamed.vcf.gz > rename.body.vcf
-
-zgrep -v "^#" final_renamed.vcf.gz |wc -l
-echo {1..10603559} | tr ' ' '\n' > contpos.txt
-
-awk 'BEGIN{OFS=FS="\t"} NR==FNR{a[NR]=$1; next} {if (FNR in a) $2=a[FNR]; print $0}' contpos.txt rename.body.vcf > rename2.body.vcf
-
-bcftools sort final_renamed.vcf.gz -Oz -o final_sorted.vcf.gz
+# Reassemble VCF
+bcftools sort $OUTNAM\_final_4pixy_renamed.vcf.gz -Oz -o final_sorted.vcf.gz
 
 bcftools view -h final_sorted.vcf.gz > sort.head.txt
 
-cat sort.head.txt rename2.body.vcf | bgzip > final_merged.vcf.gz
+cat sort.head.txt <(zcat rename2.body.vcf.gz) | bgzip > final_merged.vcf.gz
 
 tabix final_merged.vcf.gz
 
+# make a file of just individuals from filtered VCF -- pixy input files are headerless tab separated
+bcftools query -l final_merged.vcf.gz | awk 'BEGIN{OFS=FS="\t"} {print $1, $1}' > $OUTNAM\_individuals_4pixy.txt
+
+# make a pop file
+awk 'NR==FNR{ids[$1]=1; next} $1 in ids' $OUTNAM\_individuals_4pixy.txt $META_NOHEAD > $OUTNAM\_pops_4pixy.txt
+
 ##pixy analysis
+module purge; module use /nfs/turbo/lsa-bradburd/shared/Lmod/; module load pixy
 
 pixy --stats fst \
 --vcf final_merged.vcf.gz \
---populations new_pop_file.txt \
---window_size 10603559 \
---n_cores 4
+--populations $OUTNAM\_pops_4pixy.txt \
+--window_size $VARIANT_COUNT \
+--n_cores $THREADS
 
 pixy --stats pi \
 --vcf final_merged.vcf.gz \
---populations new_indv_file.txt \
---window_size 10603559 \
---n_cores 4
+--populations $OUTNAM\_individuals_4pixy.txt \
+--window_size $VARIANT_COUNT \
+--n_cores $THREADS
 
