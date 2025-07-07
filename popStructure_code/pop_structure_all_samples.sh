@@ -15,7 +15,7 @@ shift 2  # Remove first two positional args
 # Set defaults
 IMISS=0.5	# individual missingness, default 0.5 (50%)
 LMISS=0.5	# locus missingness, default 0.5 (50%)
-HWP=1*10^-6	# pvalue for HWE cutoff filtering, default 1*10^-6
+HWP=0.000001	# pvalue for HWE cutoff filtering, default 1e-6
 K=5			# Maximum value of clusters (K) want to test with admixture, default 5 clusters
 THREADS=4
 
