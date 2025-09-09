@@ -45,6 +45,12 @@ to use: `module purge; module load rad_haplotyper`<br>
 <br>
 [rad_haplotyper website](https://github.com/chollenbeck/rad_haplotyper)<br>
 
+## SCAT
+version: 3.0.2<br>
+to use: `module purge; module load scat/3.0.2`<br>
+<br>
+[SCAT website](https://github.com/stephens999/scat)<br>
+
 ## SLiM
 Available versions: 4.3 (default), 5.0<br>
 ### SLiM 4.3
