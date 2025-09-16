@@ -1,0 +1,171 @@
+---
+title: "bioinfo_basics_mus"
+author: "Nicole Adams"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+# Load libraries
+library(kableExtra)  # make nice tables
+library(tidyverse)  # data wrangling
+
+set.seed(123)  # Set seed for reproducibility
+
+
+# Define Rmd knit options
+knitr::opts_knit$set(root.dir = "/Users/rachel/Documents/NicoleAdams/bioinfo_help/musARG")
+knitr::opts_chunk$set(
+	fig.height = 6,
+	fig.width = 8,
+	warning = FALSE, # supress warnings
+	message = FALSE # supress messages
+)
+
+# Create a template that sets eval=FALSE for bash chunks
+knitr::opts_template$set(nobash = list(eval = FALSE))
+
+# Set this template as default for all chunks initially
+knitr::opts_chunk$set(opts.label = "nobash")
+
+```
+
+Tutorial-esq document for familiarizing folks with CLI, genomic data, and the UMich Great Lakes cluster specifically for the Mus musculus ARG project with Ben Carlson and Alex Lewanski
+
+# Great Lakes cluster
+## Sign on via terminal (Mac) or VScode (PC)
+```{bash}
+ssh <uniquename>@greatlakes.arc-ts.umich.edu
+```
+
+Will need to enter UM password and do 2FA. If not connected to MWireless or UM internet, need to connect to [UM VPN](https://its.umich.edu/enterprise/wifi-networks/vpn/getting-started) first before ssh'ing.
+
+# Mus dataset
+The Michael Nachman Mus dataset can be found at [this link](https://andrewparkermorgan.github.io/wmgp/#samples).
+
+## Download the list of Mus bam files to Turbo
+Navigate to Turbo (storage drive for active data connected to Great Lakes)
+```{bash}
+ cd /nfs/turbo/lsa-bradburd/
+```
+
+Make a new directory for the Mus ARG project and move into it
+```{bash}
+mkdir houseMouse_ARG
+
+cd houseMouse_ARG
+
+# check which directory you are in
+pwd
+```
+
+Use wget to download the list of Mus BAM files to Turbo. The list is of URLs where the BAMs are hosted online
+```{bash}
+wget https://andrewparkermorgan.github.io/wmgp/aws_bam_urls.txt
+```
+
+Count how many Mus BAM there are
+```{bash}
+less aws_bam_urls.txt | wc -l
+```
+
+Since these BAM files are hosted on Amazon Web Services (AWS), we are going to use the AWS command line interface (aws-cli) module already installed on Great Lakes to download the files. A module is a pre-packaged, ready to use software that you need to load to use on the cluster. We could use wget like above, but aws-cli is available and supposedly a little faster. [aws-cli user guide is here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-using.html)
+
+Look at the requirements to use aws-cli module
+```{bash}
+module spider aws-cli
+```
+
+Load aws-cli so you can use it
+```{bash}
+module load aws-cli
+
+# check to see how loading the module changed your $PATH
+echo $PATH
+```
+
+Reformat URL to S3 format for aws-cli. Current URLs look like this https://wild-mouse-genomes.s3.amazonaws.com/14B.bam.bam, but aws-cli needs them to look like this: s3://wild-mouse-genomes/14B.bam.bam. We are going to use sed find and replace; [link to show what sed is doing](https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/).
+```{bash}
+# Create a file with s3:// URLs (convert https to s3 format)
+sed 's|https://wild-mouse-genomes.s3.amazonaws.com/|s3://wild-mouse-genomes/|' urls.txt > s3_urls.txt
+
+https://wild-mouse-genomes.s3.amazonaws.com/HI0373.bam
+s3://wild-mouse-genomes/HI0373.bam
+```
+
+Test downloading one BAM file using the URL
+```{bash}
+# Download single file
+aws s3 cp s3://wild-mouse-genomes/HI0373.bam . --no-sign-request
+
+while read url; do
+    s3_url=$(echo "$url" | sed 's|https://wild-mouse-genomes.s3.amazonaws.com/|s3://wild-mouse-genomes/|')
+    aws s3 cp "$s3_url" .
+done < s3_urls.txt
+```
+
+Check data download with md5checksum
+```{bash}
+
+```
+
+
+# Mus musculus reference genome
+Make a new directory to house reference files, and move into it
+```{bash}
+cd /nfs/turbo/lsa-bradburd/houseMouse_ARG/
+
+mkdir reference
+
+cd reference
+```
+
+Get FTP link from NCBI genome > FTP > "index of ___". You want the *.fna.gz reference file, but there are additional files that may be useful in analyses down the road, which you can download later as needed.
+
+(There are multiple programs to use to download, I'll use wget bc you only need to do this once, but you can use whatever you like: rsync, ncbi_datasets cli, etc)
+```{bash}
+# Mouse reference genome FTP path (just for ease in coding)
+ftp_base="https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/635/GCF_000001635.27_GRCm39"
+
+# Download key files
+wget "${ftp_base}/GCF_000001635.27_GRCm39_genomic.fna.gz"           # Genome FASTA
+#wget "${ftp_base}/GCF_000001635.27_GRCm39_genomic.gff.gz"           # Annotations
+#wget "${ftp_base}/GCF_000001635.27_GRCm39_cds_from_genomic.fna.gz"  # CDS sequences
+
+# Download assembly report
+wget "${ftp_base}/GCF_000001635.27_GRCm39_assembly_report.txt"
+
+```
+
+Index reference genome with bwa index and create .fai file with samtools
+bwa index builds the Burrows-Wheeler Transform (BWT) index, which allows BWA to efficiently search and map reads to the reference sequence. Generates several files (e.g., .amb, .ann, .bwt, .pac, .sa)
+samtools faidx creates a .fai file that also allows for fast, random access to subsequences within a larger FASTA (or FASTQ) file.
+
+Since indexing can take a while, put in sbatch file and submit as a job
+```{bash}
+#!/bin/bash
+#SBATCH --job-name refIndex
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=4G
+#SBATCH --time=01:00:00
+##SBATCH --account=bradburd0
+#SBATCH --partition=standard
+#SBATCH --output=refIndex.%j.out
+#SBATCH --error=refIndex.%j.err
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --mail-user=nicolead@umich.edu
+
+module load Bioinformatics bwa samtools htslib
+
+# bwa index needs an unzipped file
+gunzip GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.gz
+
+bwa index GCF_003704035.1_HU_Pman_2.1.3_genomic.fna #bwa index not multithreaded
+
+samtools faidx GCF_003704035.1_HU_Pman_2.1.3_genomic.fna  #samtools faidx not multithreaded
+
+# re-compress the reference genome
+bgzip GCF_003704035.1_HU_Pman_2.1.3_genomic.fna
+```
+
