@@ -41,9 +41,8 @@ ssh <uniquename>@greatlakes.arc-ts.umich.edu
 Will need to enter UM password and do 2FA. If not connected to MWireless or UM internet, need to connect to [UM VPN](https://its.umich.edu/enterprise/wifi-networks/vpn/getting-started) first before ssh'ing.
 
 # Mus dataset
-The Michael Nachman Mus dataset can be found at [this link](https://andrewparkermorgan.github.io/wmgp/#samples).
+The Michael Nachman Mus dataset downloaded via Globus though a shared collections link from Beth Dumont at The Jackson Laboratory.
 
-## Download the list of Mus bam files to Turbo
 Navigate to Turbo (storage drive for active data connected to Great Lakes)
 ```{bash}
  cd /nfs/turbo/lsa-bradburd/
@@ -59,55 +58,177 @@ cd houseMouse_ARG
 pwd
 ```
 
-Use wget to download the list of Mus BAM files to Turbo. The list is of URLs where the BAMs are hosted online
+Temporarily Mus files are in scratch/ on Great Lakes
+
+## Check for any truncated .bam files
+Use samtools quickcheck to look for files that didn't download properly
 ```{bash}
-wget https://andrewparkermorgan.github.io/wmgp/aws_bam_urls.txt
+cd /scratch/bradburd_root/bradburd0/shared_data/mus_datafiles
+
+module load Bioinformatics samtools
+
+find . -type f -name "*.bam" -print0 | xargs -0 samtools quickcheck -v 2> bad_bams.fofn
+
 ```
 
-Count how many Mus BAM there are
+### Get list of complete bam files
 ```{bash}
-less aws_bam_urls.txt | wc -l
+# List of all bam files
+find . -type f -name "*.bam" > bams.txt
+less bams.txt | wc -l # 188
+
+# List of *merged_file.bam
+find . -type f -name "*merged_file.bam" > merged_file_bams.txt
+less merged_file_bams.txt |wc -l # 118
+
+# List of *dedup.bam
+find . -type f -name "*dedup.bam" > dedup_bams.txt
+less dedup_bams.txt |wc -l # 70
+
 ```
 
-Since these BAM files are hosted on Amazon Web Services (AWS), we are going to use the AWS command line interface (aws-cli) module already installed on Great Lakes to download the files. A module is a pre-packaged, ready to use software that you need to load to use on the cluster. We could use wget like above, but aws-cli is available and supposedly a little faster. [aws-cli user guide is here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-using.html)
-
-Look at the requirements to use aws-cli module
+# Get stats on bam files
+Run samtools stats to get mapping quality information
 ```{bash}
-module spider aws-cli
+# Test one example -- takes a long time
+samtools stats A_J/ERR9880121_dedup.bam > ERR9880121_dedup_samstats.txt
+
 ```
 
-Load aws-cli so you can use it
+## Build a SLURM script to submit the samtools stats as a job -- hard coded file
+(/nfs/turbo/lsa-bradburd/houseMouse_ARG/code/samstats.sh)
 ```{bash}
-module load aws-cli
+#!/bin/bash
+#SBATCH --job-name samstats
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=3
+##SBATCH --mem=1G
+#SBATCH --time=01:00:00
+##SBATCH --account=bradburd0
+#SBATCH --partition=standard
+#SBATCH --output=samstats.%j.out
+#SBATCH --error=samstats.%j.err
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --mail-user=nicolead@umich.edu
 
-# check to see how loading the module changed your $PATH
-echo $PATH
+# Usage: sbatch /nfs/turbo/lsa-bradburd/houseMouse_ARG/code/samstats.sh
+
+
+module load Bioinformatics samtools
+
+# make sure in correct directory - w bam files
+cd /scratch/bradburd_root/bradburd0/shared_data/mus_datafiles
+
+
+# hard code file by writing it in script
+samtools stats --threads 3 A_J/ERR9880121_dedup.bam > ERR9880121_dedup_samstats.txt
+
+# -OR-
+
+# test one bam file from the list of dedup bam files -- use a Shell Command Substitution
+samtools stats --threads 3 $(head -1 dedup_bams.txt) > ERR9880121_dedup_samstats.txt
+
 ```
 
-Reformat URL to S3 format for aws-cli. Current URLs look like this https://wild-mouse-genomes.s3.amazonaws.com/14B.bam.bam, but aws-cli needs them to look like this: s3://wild-mouse-genomes/14B.bam.bam. We are going to use sed find and replace; [link to show what sed is doing](https://www.cyberciti.biz/faq/how-to-use-sed-to-find-and-replace-text-in-files-in-linux-unix-shell/).
-```{bash}
-# Create a file with s3:// URLs (convert https to s3 format)
-sed 's|https://wild-mouse-genomes.s3.amazonaws.com/|s3://wild-mouse-genomes/|' urls.txt > s3_urls.txt
+## Build a SLURM script to submit the samtools stats as a job -- w input parameters!
+(/nfs/turbo/lsa-bradburd/houseMouse_ARG/scripts/samstats_input.sh)
+Different ways:
+1. Place loop inside the slurm script - execute sequentially
+2. Make loop part of submitting the job so each file exectutes in parallel
+3. Make an array so that ^
 
-https://wild-mouse-genomes.s3.amazonaws.com/HI0373.bam
-s3://wild-mouse-genomes/HI0373.bam
+Additionally 
+1. Add logfile dir to Turbo dir - before script
+2. Add output dir to Turbo dir (and samstats) - in script
+3. Input variables
+```{bash}
+#!/bin/bash
+#SBATCH --job-name samstats
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=3
+##SBATCH --mem=1G
+#SBATCH --time=01:00:00
+##SBATCH --account=bradburd0
+#SBATCH --partition=standard
+#SBATCH --output=/nfs/turbo/lsa-bradburd/houseMouse_ARG/logfiles/samstats.%j.out
+#SBATCH --error=/nfs/turbo/lsa-bradburd/houseMouse_ARG/logfiles/samstats.%j.err
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --mail-user=nicolead@umich.edu
+
+module load Bioinformatics samtools
+
+OUTDIR="/nfs/turbo/lsa-bradburd/houseMouse_ARG/output/samtools_stats"
+
+mkdir -p $OUTDIR
+
+# Loop inside SLURM script
+# Usage: sbatch code/samstats_input.sh <list_of_bams.txt>
+# Example: sbatch code/samstats_input.sh dedup_bams.txt
+
+BAMLIST=$1
+
+cat $BAMLIST | while read BAM; do
+    FILENAME=$(basename "$BAM") # Extract the filename (e.g., DRR271602_dedup.bam)
+    OUTNAME="${FILENAME%.bam}" # Remove the .bam extension (e.g., DRR271602_dedup)
+    samtools stats --threads $SLURM_NTASKS_PER_NODE $BAM > $OUTDIR/${OUTNAME}_samstats.txt;
+    done
+
+
+#### -OR- #### 
+
+
+# Loop outside SLURM script - submit each samtools stats as a separate job
+# Usage: cat dedup_bams.txt | while read BAM; do
+#    FILENAME=$(basename "$BAM") # Extract the filename (e.g., DRR271602_dedup.bam)
+#    OUTNAME="${FILENAME%.bam}" # Remove the .bam extension (e.g., DRR271602_dedup)
+#    sbatch code/samstats_input.sh $BAM $OUTNAME
+#    done
+
+BAM=$1
+OUTNAME=$2
+
+samtools stats --threads $SLURM_NTASKS_PER_NODE $BAM > $OUTDIR/${OUTNAME}_samstats.txt
+
+
+#### -OR- ####
+
+
+# Array job - submit samtools stats as a separate array job
+# Usage: sbatch code/samstats_array.sh -OR- sbatch samstats_array.sh --array 1-70
+
+# Chaage Output/Error logging (Use the array ID %A_%a to keep logs separate) - # %A is the Job ID, %a is the Array Task ID
+#SBATCH --ntasks-per-node=1 # change for array
+#SBATCH --cpus-per-task=3 # change for array
+#SBATCH --output=/nfs/turbo/lsa-bradburd/houseMouse_ARG/logfiles/samstats_%A_%a.out
+#SBATCH --error=/nfs/turbo/lsa-bradburd/houseMouse_ARG/logfiles/samstats_%A_%a.err
+#SBATCH --array=1-70 #command-line flags provided to sbatch command always take precedence over this line
+
+BAMLIST=$1
+
+# Correlate the bam file with the array task ID
+BAM_PATH=$(tail -n +$SLURM_ARRAY_TASK_ID $BAMLIST | head -n 1)
+
+# Extract the base name for the output file
+FILENAME=$(basename "$BAM_PATH")
+OUTNAME="${FILENAME%.bam}" # e.g., DRR271602_dedup
+
+# Run samtools command for this single task
+samtools stats --threads $SLURM_CPUS_PER_TASK $BAM_PATH > $OUTDIR/${OUTNAME}_samstats.txt
+
+
 ```
 
-Test downloading one BAM file using the URL
+Combine samtools stats into one file
 ```{bash}
-# Download single file
-aws s3 cp s3://wild-mouse-genomes/HI0373.bam . --no-sign-request
+# combine with multiqc
+module load Bioinformatics multiqc
 
-while read url; do
-    s3_url=$(echo "$url" | sed 's|https://wild-mouse-genomes.s3.amazonaws.com/|s3://wild-mouse-genomes/|')
-    aws s3 cp "$s3_url" .
-done < s3_urls.txt
+cd /nfs/turbo/lsa-bradburd/houseMouse_ARG/output/samtools_stats
+
+multiqc *samstats.txt --filename samtools_stats_multiq
+
 ```
 
-Check data download with md5checksum
-```{bash}
-
-```
 
 
 # Mus musculus reference genome
