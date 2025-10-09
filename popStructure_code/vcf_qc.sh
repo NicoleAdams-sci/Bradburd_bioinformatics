@@ -12,6 +12,8 @@ VCF=$1
 
 THREADS=4
 
+CODE_DIR="/home/nicolead/bioinfo_help/patTorres-Pineda/"
+
 # Define output
 mkdir -p output/vcf_qc
 OUTDIR="output/vcf_qc"
@@ -59,13 +61,13 @@ vcftools --gzvcf $VCF --missing-site --out $OUTDIR/site_miss
 
 # Check for invariant (monomorphic) sites
 echo "--- Checking for invariant sites in $VCF ---"
-bash code/check.invarSites.sh $VCF
+bash $CODE_DIR/code/check.invarSites.sh $VCF
 
 # Change into output directory
 cd $OUTDIR
 
 # Plot missingness and depth distributions in R
-Rscript ../../code/vcf_qc.R indiv_miss.imiss site_miss.lmiss indiv_depth.idepth
+Rscript $CODE_DIR/code/vcf_qc.R indiv_miss.imiss site_miss.lmiss indiv_depth.idepth
 
 
 # Get version information for modules used
