@@ -45,6 +45,12 @@ to use: `module purge; module load rad_haplotyper`<br>
 <br>
 [rad_haplotyper website](https://github.com/chollenbeck/rad_haplotyper)<br>
 
+## Relate
+version: 1.2.4<br>
+to use: `module purge; module load relate/0.1.2.4`<br>
+<br>
+[Relate website](https://myersgroup.github.io/relate/)<br>
+
 ## SCAT
 version: 3.0.2<br>
 to use: `module purge; module load scat/3.0.2`<br>
