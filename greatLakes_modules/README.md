@@ -54,8 +54,7 @@ to use: `module purge; module load scat/3.0.2`<br>
 ## SINGER
 version: 0.1.8<br>
 to use: `module purge; module load singer/0.1.8`<br>
-<br>
-**Dependencies**: Python 3, tskit, numpy (currently loads slim_postprocessing module to satisfy)<br>
+*Dependencies*: Python 3, tskit, numpy (currently loads slim_postprocessing module to satisfy)<br>
 <br>
 [SINGER website](https://github.com/popgenmethods/SINGER)<br>
 
