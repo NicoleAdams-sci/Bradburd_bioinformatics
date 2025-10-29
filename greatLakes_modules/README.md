@@ -19,10 +19,9 @@ to use: `module load angsd/0.940`<br>
 version: 1.0.0<br>
 to use: `module load arg_inference`<br>
 <br>
-Purpose: Inferring ancestral recombination graphs (ARG) (software from Palamara Lab)<br>
 Contains: THREADS v0.2.1, ARG-Needle v1.0.3<br>
 <br>
-Links: [THREADS](https://palamaralab.github.io/software/threads/) | [ARG-needle](https://palamaralab.github.io/software/argneedle/)<br>
+Links: [THREADS](https://palamaralab.github.io/software/threads/) | [ARG-Needle](https://palamaralab.github.io/software/argneedle/)<br>
 
 ## fastp
 version: 0.24.0<br>
