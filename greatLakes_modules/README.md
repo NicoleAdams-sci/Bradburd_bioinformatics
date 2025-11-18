@@ -23,6 +23,12 @@ Contains: THREADS v0.2.1, ARG-Needle v1.0.3<br>
 <br>
 Links: [THREADS](https://palamaralab.github.io/software/threads/) | [ARG-Needle](https://palamaralab.github.io/software/argneedle/)<br>
 
+## Beagle
+version: 5.5 (27Feb25.75f)<br>
+to use: `module load beagle/5.5`<br>
+<br>
+Links: [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html)<br>
+
 ## fastp
 version: 0.24.0<br>
 to use: `module load fastp`<br>
