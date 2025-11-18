@@ -181,7 +181,7 @@ map_data_summary <- mus %>%
 # Plotting by point size
 map.sampSz.p <- ggplot(data = world_map) +
   geom_sf() +
-  geom_point(data = map_data_summary, aes(x = Longitude, y = Latitude, size = sample_size), color = "red", alpha = 0.5) +
+  geom_point(data = map_data_summary, aes(x = Longitude, y = Latitude, size = sample_size), color = "red", alpha = 0.95) +
   scale_size_continuous(name = "Sample Size") +
   labs(title = paste("Sample Locations by Size ( N =",dim(mus)[1], ")")) +
   theme_minimal() +
@@ -201,11 +201,12 @@ map.sampSz.p2 <- ggplot(data = world_map) +
   geom_sf() +
   geom_point(data = map_data_summary2, aes(x = Longitude, y = Latitude, 
                                            shape = Subspecies, size = sample_size, color = Subspecies),
-             alpha = 0.5) +
+             alpha = 0.75) +
   scale_size_continuous(name = "Sample Size") +
   scale_color_brewer(palette = "Dark2") +
   scale_shape_manual(values = c(16, 17, 15, 3, 7, 8, 18)) +
   labs(title = paste("Sample Locations by Subspecies ( N =",dim(mus)[1], ")")) +
+  guides(color = guide_legend(override.aes = list(size = 4))) +
   theme_minimal() +
   theme(legend.position = "right")
 
@@ -233,3 +234,19 @@ ggsave(
   bg = "white",
   dpi = 300 # Set the resolution for high quality
 )
+
+
+# ---  Map for Gideon 20251105 ---
+gid.p <- ggplot(data = world_map) +
+  geom_sf() +
+  geom_point(data = map_data_summary, aes(x = Longitude, y = Latitude, size = sample_size),
+             color = "#1B9E77FF", alpha = 0.95) +
+  scale_size_continuous(name = "Sample Size") +
+  guides(color = guide_legend(override.aes = list(size = 4))) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+ggsave(gid.p, filename = paste0("mus_data_map_", today, ".png"), width = 12, 
+       height = 8, 
+       bg = "white",
+       dpi = 600 )
