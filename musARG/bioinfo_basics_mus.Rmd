@@ -71,8 +71,10 @@ find . -type f -name "*.bam" -print0 | xargs -0 samtools quickcheck -v 2> bad_ba
 
 ```
 
-### Get list of complete bam files
+### Get list of complete bam/cram files
+Had to delete duplicate .cram and index files from subdirectory wmgp and remade the cram lists
 ```{bash}
+##### bam files ##### 
 # List of all bam files
 find . -type f -name "*.bam" > bams.txt
 less bams.txt | wc -l # 188
@@ -85,7 +87,214 @@ less merged_file_bams.txt |wc -l # 118
 find . -type f -name "*dedup.bam" > dedup_bams.txt
 less dedup_bams.txt |wc -l # 70
 
+
+
+##### cram files ##### 
+# List of all cram files
+find . -type f -name "*.cram" > crams.txt
+less crams.txt | wc -l # 750
+
+# List of *merged_file.cram
+find . -type f -name "*merged_file.cram" > merged_file_crams.txt
+less merged_file_crams.txt |wc -l # 313
+
+# List of *dedup.cram
+find . -type f -name "*dedup.cram" > dedup_crams.txt
+less dedup_crams.txt |wc -l # 437
+
+# List of cram index files
+find . -type f -name "*dedup.cram.crai" | wc -l
+find . -type f -name "*merged_file.cram.crai" | wc -l
 ```
+
+### Clean up cram files
+Identify duplicates and create a list of unique files
+```{bash}
+less dedup_crams.txt | wc -l
+# N=442
+less dedup_crams.txt | cut -f3 -d"/" | sort | uniq -c | wc -l 
+# N=437
+
+# I'm going to delete the 5 duplicate cram files
+less dedup_crams.txt | cut -f3 -d"/" | sort | uniq > dedup_crams_uniq.txt
+less dedup_crams.txt | cut -f3 -d"/" | sort > dedup_crams_nopath.txt
+
+diff dedup_crams_nopath.txt dedup_crams_uniq.txt 
+
+# where duplicate cram files are located:
+find . -type f -name POHN_dedup.cram
+find . -type f -name SRR27161163_dedup.cram
+find . -type f -name SRR27161164_dedup.cram
+find . -type f -name SRR27161169_dedup.cram
+find . -type f -name SRR27161170_dedup.cram
+
+# delete the duplicated files in the wmgp directory
+rm wmgp/POHN_dedup.cram
+rm wmgp/SRR27161163_dedup.cram
+rm wmgp/SRR27161164_dedup.cram
+rm wmgp/SRR27161169_dedup.cram
+rm wmgp/SRR27161170_dedup.cram
+
+# check the number of uniq samples again after deleting the dup cram files
+find . -type f -name "*dedup.cram" > dedup_crams.txt
+less dedup_crams.txt |wc -l
+# N=437
+
+less dedup_crams.txt | cut -f3 -d"/" | sort | uniq > dedup_crams_uniq.txt
+less dedup_crams.txt | cut -f3 -d"/" | sort > dedup_crams_nopath.txt
+diff dedup_crams_nopath.txt dedup_crams_uniq.txt 
+# empty
+
+# remove debug files
+rm dedup_crams_uniq.txt dedup_crams_nopath.txt
+
+# Check the merged_file.cram files, I assume it'll have similar duplicate files
+less merged_file_crams.txt |wc -l
+# N=319
+less merged_file_crams.txt | cut -f3 -d"/" | sort | uniq > merged_file_crams_uniq.txt
+less merged_file_crams_uniq.txt |wc -l
+# N=313
+
+less merged_file_crams.txt | cut -f3 -d"/" | sort > merged_file_crams_nopath.txt
+less merged_file_crams_nopath.txt |wc -l
+# N=319
+
+diff merged_file_crams_nopath.txt merged_file_crams_uniq.txt
+
+find . -type f -name SK3474_merged_file.cram
+find . -type f -name SK4225_merged_file.cram
+find . -type f -name SK4228_merged_file.cram
+find . -type f -name SK4236_merged_file.cram
+find . -type f -name SK4256_merged_file.cram
+find . -type f -name SK4290_merged_file.cram
+
+# remove the duplicate files from wmgp
+rm wmgp/SK3474_merged_file.cram
+rm wmgp/SK4225_merged_file.cram
+rm wmgp/SK4228_merged_file.cram
+rm wmgp/SK4236_merged_file.cram
+rm wmgp/SK4256_merged_file.cram
+rm wmgp/SK4290_merged_file.cram
+
+
+find . -type f -name "*merged_file.cram" > merged_file_crams.txt
+# N = 313
+
+less merged_file_crams.txt | cut -f3 -d"/" | sort | uniq > merged_file_crams_uniq.txt
+less merged_file_crams.txt | cut -f3 -d"/" | sort > merged_file_crams_nopath.txt
+diff merged_file_crams_nopath.txt merged_file_crams_uniq.txt
+# empty
+
+# remove debug files
+rm merged_file_crams_uniq.txt merged_file_crams_nopath.txt
+
+find . -type f -name POHN_dedup.*
+find . -type f -name SRR27161163_dedup.*
+find . -type f -name SRR27161164_dedup.*
+find . -type f -name SRR27161169_dedup.*
+find . -type f -name SRR27161170_dedup.*
+
+find . -type f -name SK3474_merged_file.*
+find . -type f -name SK4225_merged_file.*
+find . -type f -name SK4228_merged_file.*
+find . -type f -name SK4236_merged_file.*
+find . -type f -name SK4256_merged_file.*
+find . -type f -name SK4290_merged_file.*
+
+# remove duplicated index files UGHHHHHH
+rm wmgp/SRR27161164_dedup.cram.crai
+rm wmgp/SRR27161169_dedup.cram.crai
+rm wmgp/SRR27161170_dedup.cram.crai
+rm wmgp/SK4225_merged_file.cram.crai
+rm wmgp/SK4236_merged_file.cram.crai
+rm wmgp/SK4290_merged_file.cram.crai
+
+
+#Check the overlap between merged_files and dedup cram files
+less dedup_crams.txt | cut -f3 -d"/" | sort > dedup_crams_nopath.txt
+less merged_file_crams.txt | cut -f3 -d"/" | sort > merged_file_crams_nopath.txt
+
+# get just base sample name without file extensions (eg CAST1048_merged_file.cram → CAST1048)
+less dedup_crams_nopath.txt | cut -f1 -d"_" | sort > dedup_crams_sampleNames.txt
+less merged_file_crams_nopath.txt | cut -f1 -d"_" | sort > merged_file_crams_sampleNames.txt
+
+diff dedup_crams_sampleNames.txt merged_file_crams_sampleNames.txt --suppress-common-lines -y
+# many many samples
+
+# get intersection of sample names
+grep -xFf dedup_crams_sampleNames.txt merged_file_crams_sampleNames.txt > duplicate_cram_files.txt
+# N=21 (same if reverse order in grep command)
+
+# There are only 21 files that have both a *dedup.cram and a *merged_file.cram, which means that the final cram files could have either file extension. (and makes more sense about what Beth was saying…). So the total number of unique samples are 313(merged_file.cram) + 437(dedup.cram) - 21 = 729.   which is not the same as the freeze2 VCF which has 780
+
+# look at the dups in the full crams text file
+less crams.txt | sort > crams_sorted.txt
+
+bash get_unique_crams.sh
+# resulted in 729 unique cram files
+
+```
+
+# Get metadata for list of cram files
+Uploaded full metadata, retrieved from [wild mouse genomes project data](https://docs.google.com/spreadsheets/d/1y1T_OW_ceU95WscfmK4YUO4FJaE0I3eDTwb40EKc2wY/edit) on 20251002.
+```{r}
+# module load Rtidyverse
+# R
+
+library(tidyverse)
+
+OUTDIR="/nfs/turbo/lsa-bradburd/musARG/data/"
+
+# load in list of cram files in /scratch/bradburd_root/bradburd0/shared_data/mus_datafiles
+crams <- read.delim("dedup_crams.txt", header = FALSE)
+
+# split subdirectory from file name
+crams <- crams %>% separate(V1, into = c("dot", "dir", "file"), sep = "/") %>% select(-dot) %>%
+  mutate("Fastq.Accessions"=file) %>% separate(`Fastq.Accessions`, into = c("Fastq.Accessions", "stuff1", "stuff2"), sep ="[._]") %>% select(-c(stuff1, stuff2))
+
+
+# load in metadata from Turbo
+meta <- read.csv("/nfs/turbo/lsa-bradburd/musARG/data/mus_WholeGenomeSequencing_20251002.csv")
+
+
+# find overlap bt crams and metadata
+# turns out there are list of fastq acession numbers in the colum fastq.Accessions for some of the samples :(
+# 1. Un-nest the Fastq Accessions column (by separate the comma-space delimited strings into new rows)
+meta_unnested <- meta %>% separate_rows(`Fastq.Accessions`, sep = ", ")
+
+cram_in_meta <- length(intersect(meta_unnested$Fastq.Accessions, crams$Fastq.Accessions))
+
+# check how many samples don't have Fastq Accession
+length(which(meta_unnested$Fastq.Accessions == "")) # 234
+
+
+# create a dataframe of metadata of the 364 crams with metadata (remove some blank columns at the end)
+cram_meta_A <- meta_unnested %>% filter(Fastq.Accessions %in% crams$Fastq.Accessions) 
+cram_meta_B <- meta_unnested %>% filter(Sample.ID %in% crams$Fastq.Accessions)
+
+cram_meta_C <- full_join(cram_meta_A, cram_meta_B)
+
+cram_meta <- left_join(cram_meta_C, crams)
+
+cat("Out of ", dim(crams)[1], "crams, ", dim(cram_meta)[1], "are found in the metadata.\n")
+# Out of  442 crams,  441 are found in the metadata.
+
+# save dataframe as csv for future use - need quotes bc commas in cell!
+write.csv(cram_meta, paste0(OUTDIR, "mus_crams_metadata.csv"), row.names = FALSE, quote = TRUE)
+
+# save list of cram samples that are inbred based on metadata
+cram_inbred <- cram_meta %>% filter(Sample.Type == "inbred") %>% select(Fastq.Accessions)
+write.table(cram_inbred, paste0(OUTDIR, "mus_crams_inbred.csv"), row.names = FALSE, quote = FALSE)
+
+
+
+# save list of cram samples that are not in metadata - no longer needed
+#cram_no_meta <- setdiff(crams$Fastq.Accessions, cram_meta$Fastq.Accessions)
+#write.table(cram_no_meta, paste0(OUTDIR, "mus_crams_missing_metadata.csv"), row.names = FALSE, quote = FALSE)
+#cat("Out of ", dim(crams)[1], "crams, ", length(cram_no_meta), "do NOT have metadata.\n")
+
+```
+
 
 # Get stats on bam files
 Run samtools stats to get mapping quality information
@@ -230,63 +439,169 @@ multiqc *samstats.txt --filename samtools_stats_multiq
 ```
 
 
+# Freeze2 VCF
+I downloaded the Freeze2 VCFs from Beth and the wild mouse genomics project via Globus. There are raw VCFs per chromosome and filtered annotated VCFs per chromosome. The process to create the VCFs were "Reads were mapped with bwa. Per-sample variants were called using DeepVariant in WGS mode, and GLnexus was used for joint calling. The link contains folders with unfiltered and filtered variants. Filtered variants  include only biallelic SNPs with <10% missing data across all samples and QUAL > 30.... Files are split by chromosome. We have not yet completed joint calling on the sex chromosomes as we had some work to do to figure out the sex of a large number of samples." -- Beth Dumont
 
-# Mus musculus reference genome
-Make a new directory to house reference files, and move into it
-```{bash}
-cd /nfs/turbo/lsa-bradburd/houseMouse_ARG/
-
-mkdir reference
-
-cd reference
-```
-
-Get FTP link from NCBI genome > FTP > "index of ___". You want the *.fna.gz reference file, but there are additional files that may be useful in analyses down the road, which you can download later as needed.
-
-(There are multiple programs to use to download, I'll use wget bc you only need to do this once, but you can use whatever you like: rsync, ncbi_datasets cli, etc)
-```{bash}
-# Mouse reference genome FTP path (just for ease in coding)
-ftp_base="https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/635/GCF_000001635.27_GRCm39"
-
-# Download key files
-wget "${ftp_base}/GCF_000001635.27_GRCm39_genomic.fna.gz"           # Genome FASTA
-#wget "${ftp_base}/GCF_000001635.27_GRCm39_genomic.gff.gz"           # Annotations
-#wget "${ftp_base}/GCF_000001635.27_GRCm39_cds_from_genomic.fna.gz"  # CDS sequences
-
-# Download assembly report
-wget "${ftp_base}/GCF_000001635.27_GRCm39_assembly_report.txt"
-
-```
-
-Index reference genome with bwa index and create .fai file with samtools
-bwa index builds the Burrows-Wheeler Transform (BWT) index, which allows BWA to efficiently search and map reads to the reference sequence. Generates several files (e.g., .amb, .ann, .bwt, .pac, .sa)
-samtools faidx creates a .fai file that also allows for fast, random access to subsequences within a larger FASTA (or FASTQ) file.
-
-Since indexing can take a while, put in sbatch file and submit as a job
+## VCF QC
+(/nfs/turbo/lsa-bradburd/musARG/code/vcf_qc.sbatch)
 ```{bash}
 #!/bin/bash
-#SBATCH --job-name refIndex
+#SBATCH --job-name=vcf_qc
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=4G
-#SBATCH --time=01:00:00
-##SBATCH --account=bradburd0
-#SBATCH --partition=standard
-#SBATCH --output=refIndex.%j.out
-#SBATCH --error=refIndex.%j.err
-#SBATCH --mail-type=BEGIN,FAIL,END
-#SBATCH --mail-user=nicolead@umich.edu
+#SBATCH --mem=14G
+#SBATCH --time=04:00:00
+#SBATCH --account=bradburd0
+#SBATCH --output=vcf_qc_%j.out
 
-module load Bioinformatics bwa samtools htslib
 
-# bwa index needs an unzipped file
-gunzip GCF_003704035.1_HU_Pman_2.1.3_genomic.fna.gz
+# Usage: sbatch vcf_qc.sbatch <file.vcf.gz>
 
-bwa index GCF_003704035.1_HU_Pman_2.1.3_genomic.fna #bwa index not multithreaded
+VCF=$1
 
-samtools faidx GCF_003704035.1_HU_Pman_2.1.3_genomic.fna  #samtools faidx not multithreaded
+bash ~/bioinfo_help/patTorres-Pineda/code/vcf_qc.sh $VCF
 
-# re-compress the reference genome
-bgzip GCF_003704035.1_HU_Pman_2.1.3_genomic.fna
+```
+
+Run QC script 
+```{bash}
+cd /nfs/turbo/lsa-bradburd/musARG
+
+## Chr1
+sbatch code/vcf_qc.sbatch data/freeze2_vcf/filtered_annotated/wmgp.deepVar.jointGenotyping.20250929.chr1.filtered.vep.vcf.gz
+
+# rename files to indicate that it's chr1
+mv snp_per_loci.txt chr1_snp_per_loci.txt
+mv chr1_snp_per_loci.txt output/vcf_qc/
+mv vcf_qc_34325366.out output/vcf_qc/
+
+cd output/vcf_qc
+for FILE in *; do
+  [[ $FILE != *"snp_per_loci"* ]] && mv "$FILE" "chr1_$FILE"
+done
+
+
+
+## Chr 19 (smallest chr based on data size)
+sbatch code/vcf_qc.sbatch data/freeze2_vcf/filtered_annotated/wmgp.deepVar.jointGenotyping.20250929.chr19.filtered.vep.vcf.gz
+
+# rename output files
+mv snp_per_loci.txt chr19_snp_per_loci.txt
+mv chr19_snp_per_loci.txt output/vcf_qc/
+
+for FILE in *; do
+  if [[ $FILE != *"chr1_"* ]] && [[ $FILE != *"snp_per_loci"* ]] && [[ $FILE != vcf_qc*.out ]]; then
+    echo mv "$FILE" "chr19_$FILE"
+  fi
+done
+
+
+```
+
+## Remove hybrids, inbred, and low cov samples from VCF
+(code/remove_bad_samples.sh)
+```{bash}
+#!/bin/bash
+
+# Script to remove samples from a VCF file using bcftools
+# Based on sample lists from three CSV files
+
+# load modules
+module load Bioinformatics bcftools
+
+VCF_DIR="/nfs/turbo/lsa-bradburd/musARG/data/freeze2_vcf/filtered_annotated"
+
+cd $VCF_DIR
+
+# Input and output files
+INPUT_VCF="$1"
+OUTPUT_VCF="${2:-${INPUT_VCF%.vcf*}_rmbads.vcf.gz}"
+
+# Sample list files
+HYBRIDS_FILE="hybrids_mus_samples.csv"
+INBRED_FILE="inbred_mus_samples.csv"
+LOW_DEPTH_FILE="low_depth_mus_samples.csv"
+
+
+# Create a temporary file for all samples to remove
+TEMP_SAMPLES=$(samples_to_remove.txt)
+
+# Combine all sample IDs (skip header line 'INDV' from each file)
+echo "Collecting samples to remove..."
+{
+    tail -n +2 "$HYBRIDS_FILE"
+    tail -n +2 "$INBRED_FILE"
+    tail -n +2 "$LOW_DEPTH_FILE"
+} | sort -u > "$TEMP_SAMPLES"
+
+# Count samples to remove
+SAMPLE_COUNT=$(wc -l < "$TEMP_SAMPLES")
+echo "Found $SAMPLE_COUNT unique samples to remove"
+
+
+# Remove samples using bcftools
+echo "Filtering VCF..."
+bcftools view -S "${TEMP_SAMPLES}.keep" "$INPUT_VCF" -Oz -o "$OUTPUT_VCF"
+
+# Index the output VCF if it's compressed
+if [[ "$OUTPUT_VCF" == *.gz ]]; then
+    echo "Indexing output VCF..."
+    bcftools index -t "$OUTPUT_VCF"
+fi
+
+# Clean up temporary files
+rm -f "$TEMP_SAMPLES"
+
+echo "Done! Filtered VCF saved to: $OUTPUT_VCF"
+
+# Print summary
+echo ""
+echo "Summary:"
+echo "  Input VCF: $INPUT_VCF"
+echo "  Output VCF: $OUTPUT_VCF"
+
+```
+
+
+## Phase VCF
+de novo (no reference panel) Beagle will perform de novo phasing using the Li and Stephens model on your samples only. (double check that this is true)
+Recommended VCF Pre-processing:
+Compression and Indexing: The input VCF should be compressed with bgzip and indexed with tabix (creating a .vcf.gz and .tbi file).
+Biallelic Sites: Filter to include only biallelic SNPs and/or Indels.
+Chromosome Consistency: Ensure the chromosome ID in the VCF's CHROM column matches the ID used in the chrom= parameter (e.g., all are 22 or all are chr22).
+Missing Data: Beagle is designed to handle sporadic missing genotypes and will impute them during the phasing process, so you don't need to explicitly filter for missingness unless a sample or site has a very high missing rate. CHECK IF TRUE
+(beagle_phase.sh)
+```{bash phase VCF}
+#!/bin/bash
+#SBATCH --job-name=beagle_phase
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
+#SBATCH --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --account=bradburd0
+#SBATCH --output=phase_%j.out
+
+# Usage: sbatch beagle_phase.sh chr19.vcf.gz chr19_phased
+
+INPUT_VCF=$1
+OUTPUT_PREFIX=$2
+
+# Set memory for Beagle (leave some for system overhead)
+export BEAGLE_MEMORY=14g
+
+# Load beagle module (custom)
+module use /nfs/turbo/lsa-bradburd/shared/Lmod/
+module load beagle/5.5
+
+
+beagle_5.5 \
+    gt=${INPUT_VCF} \
+    out=${OUTPUT_PREFIX} \
+    impute=false \
+    nthreads=${SLURM_NTASKS_PER_NODE}
+    
+
+# For record; list modules
+module list
 ```
 
