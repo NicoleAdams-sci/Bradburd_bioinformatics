@@ -1,3 +1,7 @@
 # ignore mac ds files
 .DS_Store
 **/.DS_Store
+
+# ignore Rhistory files
+.Rhistory
+**/.Rhistory
