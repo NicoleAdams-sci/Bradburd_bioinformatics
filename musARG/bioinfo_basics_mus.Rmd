@@ -632,9 +632,9 @@ RelateFileFormats \
 #!/bin/bash
 #SBATCH --job-name singer
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=8
 #SBATCH --mem=14G
-#SBATCH --time=04:00:00
+#SBATCH --time=12:00:00
 #SBATCH --account=bradburd0
 #SBATCH --partition=standard
 #SBATCH --output=logfiles/singer.%j.out
@@ -642,7 +642,7 @@ RelateFileFormats \
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=nicolead@umich.edu
 
-# Usage: sbatch code/singer_arg.sbatch wmgp.deepVar.jointGenotyping.20250929.chr19.filtered.vep.filtered.phased.vcf.gz
+# Usage: sbatch code/singer_arg.sh wmgp.deepVar.jointGenotyping.20250929.chr19.filtered.vep.filtered.phased.vcf.gz
 
 module load Bioinformatics bcftools htslib # for indexing VCF & getting chr info from VCF
 
@@ -674,24 +674,25 @@ CHR_END=$(bcftools query -f '%POS\n' $VCF_DIR/$VCF | tail -n 1)
 [ ! -f $SCRATCH_DIR/$vcf_prefix.vcf ] && bcftools view -O v -o $SCRATCH_DIR/$vcf_prefix.vcf $VCF_DIR/$VCF
 
 
+
 # Load SINGER modules
 module use /nfs/turbo/lsa-bradburd/shared/Lmod/
 module purge; module load singer/0.1.8
 
 
 # Run ARG inference with SINGER
-singer_master -m $U_RATE -vcf $SCRATCH_DIR/$vcf_prefix \
--output $OUT_DIR/$vcf_prefix\_singer \
--start $CHR_START -end $CHR_END
-#-num_cores $SLURM_NTASKS_PER_NODE #for parallel_singer
+# singer_master -vcf $SCRATCH_DIR/$vcf_prefix \
+# -m $U_RATE \
+# -output $OUT_DIR/$vcf_prefix\_singer \
+# -start $CHR_START -end $CHR_END
 
 
 # Run SINGER inference in parallel
-# parallel_singer -m $U_RATE -vcf $SCRATCH_DIR/$vcf_prefix \
-# -n 100 -thin 50 \
-# -output $OUT_DIR/$vcf_prefix\_singer \
-# -start $CHR_START -end $CHR_END
-# -num_cores $SLURM_NTASKS_PER_NODE
+parallel_singer -vcf $SCRATCH_DIR/$vcf_prefix \
+-m $U_RATE -Ne 500000 \
+-n 10 -thin 50 \
+-output $OUT_DIR/$vcf_prefix\_singer \
+-num_cores $SLURM_NTASKS_PER_NODE
 
 # Check SINGER MCMC convergence
 # python compute_traces.py \
