@@ -605,3 +605,106 @@ beagle_5.5 \
 module list
 ```
 
+
+## ARG inference w RELATE
+### Data Prep
+```{bash}
+## Make the .sample file
+#The three columns are:
+#First individual ID
+#Second individual ID
+#Missing data proportion
+
+# create haps files via vcf files
+RelateFileFormats \
+                 --mode ConvertFromVcf \
+                 --haps HAPS/chr19_phased.haps \
+                 --sample HAPS/chr${i}.sample \
+                 -i VCFS/chr${i}
+                 
+
+```
+
+
+## ARG inference w SINGER
+** make sure up to date with stand alone singer_arg.sh file **
+```{bash}
+#!/bin/bash
+#SBATCH --job-name singer
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=14G
+#SBATCH --time=04:00:00
+#SBATCH --account=bradburd0
+#SBATCH --partition=standard
+#SBATCH --output=logfiles/singer.%j.out
+#SBATCH --error=logfiles/singer.%j.err
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mail-user=nicolead@umich.edu
+
+# Usage: sbatch code/singer_arg.sbatch wmgp.deepVar.jointGenotyping.20250929.chr19.filtered.vep.filtered.phased.vcf.gz
+
+module load Bioinformatics bcftools htslib # for indexing VCF & getting chr info from VCF
+
+
+# Define variables
+VCF=$1
+VCF_DIR="/nfs/turbo/lsa-bradburd/musARG/explore"
+vcf_prefix=$(basename $VCF_DIR/$VCF .vcf.gz)
+SCRATCH_DIR="/scratch/bradburd_root/bradburd0/shared_data/mus_datafiles/arg_files"
+OUT_DIR="/nfs/turbo/lsa-bradburd/musARG/explore/singer_arg"
+
+# SINGER INPUTS
+# mutation rate: 6.7 × 10-8 (López-Cortegano et al. 2024)
+U_RATE="6.7e-8"
+NE="500000"
+
+
+# make out directory if doesn't exist
+[ ! -d $OUT_DIR ] && mkdir $OUT_DIR
+
+# Index VCF, if not done already
+[ ! -f $VCF_DIR/$VCF.tbi ] && tabix $VCF_DIR/$VCF
+
+# Get chromosome starting and ending position
+CHR_START=$(bcftools query -f '%POS\n' $VCF_DIR/$VCF | head -n 1)
+CHR_END=$(bcftools query -f '%POS\n' $VCF_DIR/$VCF | tail -n 1)
+
+# unzip VCF to temp, if doesn't exist already
+[ ! -f $SCRATCH_DIR/$vcf_prefix.vcf ] && bcftools view -O v -o $SCRATCH_DIR/$vcf_prefix.vcf $VCF_DIR/$VCF
+
+
+# Load SINGER modules
+module use /nfs/turbo/lsa-bradburd/shared/Lmod/
+module purge; module load singer/0.1.8
+
+
+# Run ARG inference with SINGER
+singer_master -m $U_RATE -vcf $SCRATCH_DIR/$vcf_prefix \
+-output $OUT_DIR/$vcf_prefix\_singer \
+-start $CHR_START -end $CHR_END
+#-num_cores $SLURM_NTASKS_PER_NODE #for parallel_singer
+
+
+# Run SINGER inference in parallel
+# parallel_singer -m $U_RATE -vcf $SCRATCH_DIR/$vcf_prefix \
+# -n 100 -thin 50 \
+# -output $OUT_DIR/$vcf_prefix\_singer \
+# -start $CHR_START -end $CHR_END
+# -num_cores $SLURM_NTASKS_PER_NODE
+
+# Check SINGER MCMC convergence
+# python compute_traces.py \
+# -prefix $OUT_DIR/$vcf_prefix\_singer -m $U_RATE \
+# -start_index index_start_sample -end_index index_terminal_sample \
+# -output_filename output_trace_filename
+
+
+# Convert SINGER ARG files to tree sequence format in tskit
+#convert_to_tskit -input $OUT_DIR/$vcf_prefix\_singer -output $VCF_DIR/$vcf_prefix\_ts -start start_index -end end_index -step step_size
+
+
+# List modules for reproducibility
+module list
+```
+
