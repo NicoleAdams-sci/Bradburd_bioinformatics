@@ -115,7 +115,7 @@ example fastStructure run: `structure_threader run -K <K> -R <R> -i <input.fam> 
 version 0.0.3<br>
 to use: `module load tsbrowse/0.0.3`<br>
 <br>
-Contains: tskit v1.0.0
+Contains: tskit v1.0.0<br>
 <br>
 [tsbrowse website](https://github.com/tskit-dev/tsbrowse)<br>
 
