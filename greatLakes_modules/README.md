@@ -111,6 +111,14 @@ example fastStructure run: `structure_threader run -K <K> -R <R> -i <input.fam> 
 <br>
 [Structure threader website](https://structure-threader.readthedocs.io/en/latest/usage/)<br>
 
+## tsbrowse
+version 0.0.3<br>
+to use: `module load tsbrowse/0.0.3`<br>
+<br>
+Contains: tskit v1.0.0
+<br>
+[tsbrowse website](https://github.com/tskit-dev/tsbrowse)<br>
+
 ## VCF2PCACluster
 version: 1.41<br>
 to use: `module load Bioinformatics VCF2PCACluster`<br>
