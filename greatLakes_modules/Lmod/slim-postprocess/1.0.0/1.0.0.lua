@@ -18,12 +18,12 @@ prepend_path("PATH", pathJoin(base, "env/bin"))
 setenv("SLIM_POSTPROCESS_ROOT", base)
 
 -- Optional: Set R library path if you install gaia to module directory
--- prepend_path("R_LIBS_USER", pathJoin(base, "R_libs"))
+prepend_path("R_LIBS_USER", pathJoin(base, "R_libs"))
 
 -- Display version info when loading
 if (mode() == "load") then
     LmodMessage("Loading slim-postprocess v1.0.0")
     LmodMessage("  Python packages: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4, fastgaia-0.1.1")
-    LmodMessage("  R packages: gaia")
+    LmodMessage("  R packages: gaia, reticulate")
     LmodMessage("  R version: 4.4.0")
 end
