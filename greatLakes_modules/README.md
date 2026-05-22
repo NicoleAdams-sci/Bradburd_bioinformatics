@@ -23,6 +23,12 @@ Contains: THREADS v0.2.1, ARG-Needle v1.0.3<br>
 <br>
 Links: [THREADS](https://palamaralab.github.io/software/threads/) | [ARG-Needle](https://palamaralab.github.io/software/argneedle/)<br>
 
+## ARGweaver
+version: 0.8.1<br>
+to use: `module load argweaver`<br>
+<br>
+Links: [THREADS](https://github.com/mdrasmus/argweaver)<br>
+
 ## Beagle
 version: 5.5 (27Feb25.75f)<br>
 to use: `module load beagle/5.5`<br>
