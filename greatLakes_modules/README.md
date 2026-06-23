@@ -35,6 +35,12 @@ to use: `module load beagle/5.5`<br>
 <br>
 Links: [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html)<br>
 
+## Degenotate
+version: 1.3<br>
+to use: `module load degenotate`<br>
+<br>
+Links: [Degenotate](https://github.com/harvardinformatics/degenotate)<br>
+
 ## fastp
 version: 0.24.0<br>
 to use: `module load fastp`<br>
