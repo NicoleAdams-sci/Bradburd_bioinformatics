@@ -77,6 +77,12 @@ to use: `module purge; module load relate/1.2.4`<br>
 <br>
 [Relate website](https://myersgroup.github.io/relate/)<br>
 
+## ROHan
+version: 20230216<br>
+to use: `module load rohan`<br>
+<br>
+[ROHan website](https://github.com/grenaud/rohan)<br>
+
 ## SCAT
 version: 3.0.2<br>
 to use: `module purge; module load scat/3.0.2`<br>
