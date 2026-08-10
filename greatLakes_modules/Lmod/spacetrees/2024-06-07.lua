@@ -44,5 +44,9 @@ setenv("VIRTUAL_ENV", env)
 
 prepend_path("PYTHONPATH", repo)
 
+-- For plotting
+local jupyter = pathJoin(base, "jupyter", "share", "jupyter")
+prepend_path("JUPYTER_PATH", jupyter)
+
 -- Avoid issues from inherited Python settings
 unsetenv("PYTHONHOME")
