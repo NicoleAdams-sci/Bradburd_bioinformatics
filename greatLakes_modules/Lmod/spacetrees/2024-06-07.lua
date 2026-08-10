@@ -32,6 +32,7 @@ depends_on("relate/1.2.4")
 local base = "/nfs/turbo/lsa-bradburd/shared/programs/spacetrees/2024-06-07"
 local repo = pathJoin(base, "spacetrees")
 local env  = pathJoin(base, "venv")
+local jupyter = pathJoin(base, "jupyter", "share", "jupyter")
 
 -- put venv/bin first so python, pip, snakemake, etc. come from the SpaceTrees env.
 prepend_path("PATH", pathJoin(env, "bin"))
@@ -43,9 +44,6 @@ setenv("SPACETREES_VENV", env)
 setenv("VIRTUAL_ENV", env)
 
 prepend_path("PYTHONPATH", repo)
-
--- For plotting
-local jupyter = pathJoin(base, "jupyter", "share", "jupyter")
 prepend_path("JUPYTER_PATH", jupyter)
 
 -- Avoid issues from inherited Python settings
