@@ -116,6 +116,21 @@ Contains: tskit v0.6.4, pyslim v1.0.4, msprime v1.3.4, fastgaia-0.1.1 (Python) +
 <br>
 Links: [tskit](https://tskit.dev/) | [pyslim](https://pyslim.readthedocs.io/) | [msprime](https://msprime.readthedocs.io/) | [gaia](https://github.com/blueraleigh/gaia) | [fastgaia](https://github.com/chris-a-talbot/fastgaia) | [tsdate](https://tskit.dev/tsdate/docs/stable/index.html) | [tsinfer](https://tskit.dev/tsinfer/docs/stable/index.html)<br>
 
+## SpaceTrees
+version: 2024-06-07<br>
+to use: `module load spacetrees/2024-06-07`<br>
+<br>
+Purpose: spatial phylogenetic inference workflows using tree sequences, Relate, tsconvert, tskit, and Snakemake<br>
+Contains: SpaceTrees, Python venv with required packages, tskit v0.5.6, tsconvert, Snakemake v8.13.0<br>
+Dependencies: loads `relate/1.2.4`<br>
+<br>
+**Plotting/Jupyter**: for `plots.ipynb`, launch Jupyter Notebook/Lab through Great Lakes Open OnDemand. In the **"Source this setup file"** field, enter:<br>
+`/nfs/turbo/lsa-bradburd/shared/programs/spacetrees/2024-06-07/spacetrees_jupyter_setup.sh`<br>
+Then select the kernel `SpaceTrees 2024-06-07`. Recommended: copy `plots.ipynb` to your own working directory before running/editing:<br>
+`cp $SPACETREES_REPO/plots.ipynb .`<br>
+<br>
+Links: [SpaceTrees](https://github.com/osmond-lab/spacetrees) | [Relate](https://myersgroup.github.io/relate/) | [tskit](https://tskit.dev/)<br>
+
 ## Structure Threader (fastStructure)
 version: 1.0<br>
 to use: `module load structure_threader/1.0`<br>
