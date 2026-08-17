@@ -54,10 +54,16 @@ to use: `module load feems`<br>
 [feems website](https://github.com/NovembreLab/feems)<br>
 
 ## locator
-version: 1.2<br>
+version: 15.8.0<br>
 to use: `module load locator`<br>
 <br>
 [locator website](https://github.com/kr-colab/locator)<br>
+
+## MalariaGen Data
+version: 1.2<br>
+to use: `module load malariagen_data`<br>
+<br>
+[malariagen_data website](https://github.com/malariagen/malariagen-data-python)<br>
 
 ## pixy
 version: 1.2.10.beta2<br>
